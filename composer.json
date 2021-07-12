@@ -1,5 +1,8 @@
 {
     "name": "emr_team/data_handling",
-    "description": "tratamento de dados",
-    "require": {}
+    "description": "processador csv",
+    "require": {
+        "goodby/csv": "^1.3",
+        "league/csv": "^9.7"
+    }
 }
