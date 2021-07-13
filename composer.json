@@ -4,5 +4,10 @@
     "require": {
         "goodby/csv": "^1.3",
         "league/csv": "^9.7"
+    },
+    "autoload": {
+        "psr-4": {
+          "emr\\tratamentoCsv\\":"src/" 
+        }
     }
 }

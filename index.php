@@ -2,21 +2,14 @@
 
 require 'vendor/autoload.php';
 
-use League\Csv\Reader;
-use League\Csv\Statement;
-use League\Csv\CharsetConverter;
+use emr\tratamentoCsv\CsvGenerator;
 
-//load the CSV document from a stream
-$stream = fopen('assets/csv/questões_wordpress.csv', 'r');
-$csv = Reader::createFromStream($stream);
-$csv->setDelimiter(';');
-$csv->setHeaderOffset(0);
+$csv = new CsvGenerator();
 
-$stmt = Statement::create();   
-$records = $stmt->process($csv);
 
-foreach ($records as $index=>$record) {    
-    echo $record['title'] . PHP_EOL; 
-}
-
+// $csv_questions_download = Writer::createFromFileObject(new SplTempFileObject());
+// $csv_questions_download->insertOne(['identificador', 'alternativa_a', 'alternativa_b','alternativa_c','alternativa_d','alternativa_e','enunciated']);
+// $csv_questions_download->output('questions.csv');
+// exit();
+// echo 'error: ', json_last_error_msg(). PHP_EOL;
 ?>
