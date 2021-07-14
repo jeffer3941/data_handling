@@ -7,7 +7,7 @@ use League\Csv\Writer;
 use League\Csv\Statement;
 class CsvGenerator
 { 
-    public function processCsvData( ) 
+    public function processCsvData( ):array
     {
         $stream = fopen('assets/csv/questões_wordpress.csv', 'r');
         $csv = Reader::createFromStream($stream);
@@ -35,16 +35,17 @@ class CsvGenerator
                 'correct'       => '',                   
             );
 
-            $answer_data['identificador'] = $record['title'];
-            $answer_data['enunciated']    = $record['question'];
+            $answer_data['identificador'] = strip_tags($record['title']);
+            $answer_data['enunciated']    = strip_tags($record['question']);
             $answer_data['video']         = $record['correct_msg'];
- 
-            $fixed_data = preg_replace_callback ( '!s:(\d+):"(.*?)";!', function($match) {      
-                return ($match[1] == strlen($match[2])) ? $match[0] : 's:' . strlen($match[2]) . ':"' . $match[2] . '";';
-            },str_replace('*','',$record['answer_data']));            
+            
+            $fixed_data = $this->fixedDataSeralized($record['answer_data']);
  
             $alternatives = json_decode(json_encode(@unserialize($fixed_data)),true);  
-            
+             
+            if (gettype($alternatives) == 'boolean') {
+                continue;
+            }          
  
             if ($alternatives !== false) {
                 $alternative_title_collum = ['alternative_a','alternative_b','alternative_c','alternative_d','alternative_e'];
@@ -54,11 +55,19 @@ class CsvGenerator
                     if($alternative['_correct'] == 1){
                         $answer_data['correct'] = $alternative_correct_value[$index];
                     }
-                    @$answer_data[$alternative_title_collum[$index]] = $alternative['_answer'];                  
+                    @$answer_data[$alternative_title_collum[$index]] = strip_tags($alternative['_answer']);                  
                 }
             }     
             array_push($questions_data,$answer_data);      
         }
         return $questions_data;            
     }  
+    public function fixedDataSeralized(string $data):string
+    {
+        $fixed_data = preg_replace_callback ( '!s:(\d+):"(.*?)";!', function($match) {      
+            return ($match[1] == strlen($match[2])) ? $match[0] : 's:' . strlen($match[2]) . ':"' . $match[2] . '";';
+        },str_replace('*','',$data));
+        
+        return $fixed_data;
+    }
 }
