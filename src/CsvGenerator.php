@@ -27,6 +27,7 @@ class CsvGenerator
                 'identificador' => '',
                 'enunciated'    => '',
                 'video'         => '',
+                'comment'       => '',
                 'alternative_a' => '',
                 'alternative_b' => '',
                 'alternative_c' => '',
@@ -34,11 +35,13 @@ class CsvGenerator
                 'alternative_e' => '',
                 'correct'       => '',                   
             );
-
             $answer_data['identificador'] = strip_tags($record['title']);
             $answer_data['enunciated']    = strip_tags($record['question']);
-            $answer_data['video']         = $record['correct_msg'];
-            
+            $answer_data['video']         = strip_tags($record['correct_msg']); 
+            $length                       = strpos($answer_data['video'], ']');
+            $answer_data['comment']       = substr($answer_data['video'], $length+1, 2000);
+            $answer_data['video']         = substr($answer_data['video'], 0, $length+1);
+
             $fixed_data = $this->fixedDataSeralized($record['answer_data']);
  
             $alternatives = json_decode(json_encode(@unserialize($fixed_data)),true);  
