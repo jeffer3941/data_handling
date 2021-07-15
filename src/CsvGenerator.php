@@ -20,7 +20,8 @@ class CsvGenerator
 
 
         $questions_data = array();
-
+        $pattern_vimeo = '/vimeo/';
+        $pattern_vdo   = '/vdo id/';
         foreach ($records as $index => $record) {   
             $alternatives = array();
             $answer_data = array(
@@ -39,16 +40,21 @@ class CsvGenerator
             $answer_data['enunciated']    = strip_tags($record['question']);
             $answer_data['video']         = strip_tags($record['correct_msg']); 
             $length                       = strpos($answer_data['video'], ']');
-            $answer_data['comment']       = substr($answer_data['video'], $length+1, 2000);
-            $answer_data['video']         = $this->extractLink(substr($answer_data['video'], 0, $length+1));
+            $comment                      = substr($answer_data['video'], $length+1, 2000);
+            $video                        = $this->extractLink(substr($answer_data['video'], 0, $length+1));
+            
+            // if(preg_match($pattern_vimeo,$video)) {
+            //     continue;
+            // }
+            if(preg_match($pattern_vdo,$video) || $video == null || $video == '') {
+                continue;
+            }
+            $answer_data['comment']       = $comment;
+            $answer_data['video']         = $video;
 
             $fixed_data = $this->fixedDataSeralized($record['answer_data']);
  
-            $alternatives = json_decode(json_encode(@unserialize($fixed_data)),true);  
-             
-            // if (gettype($alternatives) == 'boolean') {
-            //     continue;
-            // }          
+            $alternatives = json_decode(json_encode(@unserialize($fixed_data)),true);          
  
             if ($alternatives !== false) {
                 $alternative_title_collum = ['alternative_a','alternative_b','alternative_c','alternative_d','alternative_e'];
