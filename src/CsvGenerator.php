@@ -40,20 +40,19 @@ class CsvGenerator
             $answer_data['video']         = strip_tags($record['correct_msg']); 
             $length                       = strpos($answer_data['video'], ']');
             $answer_data['comment']       = substr($answer_data['video'], $length+1, 2000);
-            $answer_data['video']         = substr($answer_data['video'], 0, $length+1);
+            $answer_data['video']         = $this->extractLink(substr($answer_data['video'], 0, $length+1));
 
             $fixed_data = $this->fixedDataSeralized($record['answer_data']);
  
             $alternatives = json_decode(json_encode(@unserialize($fixed_data)),true);  
              
-            if (gettype($alternatives) == 'boolean') {
-                continue;
-            }          
+            // if (gettype($alternatives) == 'boolean') {
+            //     continue;
+            // }          
  
             if ($alternatives !== false) {
                 $alternative_title_collum = ['alternative_a','alternative_b','alternative_c','alternative_d','alternative_e'];
                 $alternative_correct_value = ['A','B','C','D','E'];
-
                 foreach ($alternatives as $index => $alternative){ 
                     if($alternative['_correct'] == 1){
                         $answer_data['correct'] = $alternative_correct_value[$index];
@@ -72,5 +71,12 @@ class CsvGenerator
         },str_replace('*','',$data));
         
         return $fixed_data;
+    }
+    public function extractLink(string $video):string
+    {
+        $video_extract = str_replace(['[su_vimeo url="','[su_vimeo_button url="',
+        '" width="640" height="360" responsive="yes" autoplay="no" mute="no" dnt="no" title="" texttrack="" class=""]'],
+        '',$video);
+        return $video_extract;
     }
 }
