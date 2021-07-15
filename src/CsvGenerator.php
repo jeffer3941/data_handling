@@ -9,7 +9,7 @@ class CsvGenerator
 { 
     public function processCsvData( ):array
     {
-        $stream = fopen('assets/csv/questões_wordpress.csv', 'r');
+        $stream = fopen('assets/csv/ARQUIVO.csv', 'r');
         $csv = Reader::createFromStream($stream);
 
         $csv->setDelimiter(';');
@@ -36,36 +36,43 @@ class CsvGenerator
                 'alternative_e' => '',
                 'correct'       => '',                   
             );
-            $answer_data['identificador'] = strip_tags($record['title']);
-            $answer_data['enunciated']    = strip_tags($record['question']);
-            $answer_data['video']         = strip_tags($record['correct_msg']); 
-            $length                       = strpos($answer_data['video'], ']');
-            $comment                      = substr($answer_data['video'], $length+1, 2000);
-            $video                        = $this->extractLink(substr($answer_data['video'], 0, $length+1));
+            $answer_data['identificador'] = trim($record['identificador']);
+            $answer_data['enunciated']    = ltrim($record['enunciated']);
+            $answer_data['video']         = trim($record['link_do_video']); 
+            $answer_data['comment']       = trim($record['comment']);
+            $answer_data['alternative_a'] = trim($record['alternativa_a']);
+            $answer_data['alternative_b'] = trim($record['alternativa_b']);
+            $answer_data['alternative_c'] = trim($record['alternativa_c']);
+            $answer_data['alternative_d'] = trim($record['alternativa_d']);
+            $answer_data['alternative_e'] = trim($record['alternativa_e']);
+            $answer_data['correct'] = trim($record['correct']);
+
+            // $length                       = strpos($answer_data['video'], ']');
+            // $video                        = $this->extractLink(substr($answer_data['video'], 0, $length+1));
             
             // if(preg_match($pattern_vimeo,$video)) {
             //     continue;
             // }
-            if(preg_match($pattern_vdo,$video) || $video == null || $video == '') {
-                continue;
-            }
-            $answer_data['comment']       = $comment;
-            $answer_data['video']         = $video;
+            // if(preg_match($pattern_vdo,$video) || $video == null || $video == '') {
+            //     continue;
+            // }
+            // $answer_data['comment']       = $comment;
+            // $answer_data['video']         = $video;
 
-            $fixed_data = $this->fixedDataSeralized($record['answer_data']);
+            // $fixed_data = $this->fixedDataSeralized($record['answer_data']);
  
-            $alternatives = json_decode(json_encode(@unserialize($fixed_data)),true);          
+            // $alternatives = json_decode(json_encode(@unserialize($fixed_data)),true);          
  
-            if ($alternatives !== false) {
-                $alternative_title_collum = ['alternative_a','alternative_b','alternative_c','alternative_d','alternative_e'];
-                $alternative_correct_value = ['A','B','C','D','E'];
-                foreach ($alternatives as $index => $alternative){ 
-                    if($alternative['_correct'] == 1){
-                        $answer_data['correct'] = $alternative_correct_value[$index];
-                    }
-                    @$answer_data[$alternative_title_collum[$index]] = strip_tags($alternative['_answer']);                  
-                }
-            }     
+            // if ($alternatives !== false) {
+            //     $alternative_title_collum = ['alternative_a','alternative_b','alternative_c','alternative_d','alternative_e'];
+            //     $alternative_correct_value = ['A','B','C','D','E'];
+            //     foreach ($alternatives as $index => $alternative){ 
+            //         if($alternative['_correct'] == 1){
+            //             $answer_data['correct'] = $alternative_correct_value[$index];
+            //         }
+            //         @$answer_data[$alternative_title_collum[$index]] = strip_tags($alternative['_answer']);                  
+            //     }
+            // }     
             array_push($questions_data,$answer_data);      
         }
         return $questions_data;            
