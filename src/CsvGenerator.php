@@ -9,7 +9,7 @@ class CsvGenerator
 { 
     public function processCsvData( ):array
     {
-        $stream = fopen('assets/csv/ARQUIVO.csv', 'r');
+        $stream = fopen('assets/csv/csvVideoVDO.csv', 'r');
         $csv = Reader::createFromStream($stream);
 
         $csv->setDelimiter(';');
@@ -22,6 +22,7 @@ class CsvGenerator
         $questions_data = array();
         $pattern_vimeo = '/vimeo/';
         $pattern_vdo   = '/vdo id/';
+        $characters = "\n\r\t\v\0";
         foreach ($records as $index => $record) {   
             $alternatives = array();
             $answer_data = array(
@@ -36,16 +37,16 @@ class CsvGenerator
                 'alternative_e' => '',
                 'correct'       => '',                   
             );
-            $answer_data['identificador'] = trim($record['identificador']);
-            $answer_data['enunciated']    = ltrim($record['enunciated']);
-            $answer_data['video']         = trim($record['link_do_video']); 
-            $answer_data['comment']       = trim($record['comment']);
-            $answer_data['alternative_a'] = trim($record['alternativa_a']);
-            $answer_data['alternative_b'] = trim($record['alternativa_b']);
-            $answer_data['alternative_c'] = trim($record['alternativa_c']);
-            $answer_data['alternative_d'] = trim($record['alternativa_d']);
-            $answer_data['alternative_e'] = trim($record['alternativa_e']);
-            $answer_data['correct'] = trim($record['correct']);
+            $answer_data['identificador'] = trim($record['identificador'],$characters);
+            $answer_data['enunciated']    = ltrim($record['enunciated'],$characters);
+            $answer_data['video']         = trim($record['link_do_video'],$characters); 
+            $answer_data['comment']       = trim($record['comment'],$characters);
+            $answer_data['alternative_a'] = trim($record['alternativa_a'],$characters);
+            $answer_data['alternative_b'] = trim($record['alternativa_b'],$characters);
+            $answer_data['alternative_c'] = trim($record['alternativa_c'],$characters);
+            $answer_data['alternative_d'] = trim($record['alternativa_d'],$characters);
+            $answer_data['alternative_e'] = trim($record['alternativa_e'],$characters);
+            $answer_data['correct'] = trim($record['correct'],$characters);
 
             // $length                       = strpos($answer_data['video'], ']');
             // $video                        = $this->extractLink(substr($answer_data['video'], 0, $length+1));
