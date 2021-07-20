@@ -1,5 +1,4 @@
-<?php 
-
+<?php
 namespace emr\tratamentoCsv;
 
 use League\Csv\Reader;
@@ -9,7 +8,7 @@ class CsvGenerator
 { 
     public function processCsvData( ):array
     {
-        $stream = fopen('assets/csv/questões_wordpress.csv', 'r');
+        $stream = fopen('assets/csv/questõesWPcomVimeoFilter.csv', 'r');
         $csv = Reader::createFromStream($stream);
 
         $csv->setDelimiter(';');
@@ -22,9 +21,12 @@ class CsvGenerator
         $questions_data = array();
         $pattern_vimeo = '/vimeo/';
         $pattern_vdo   = '/vdo id/';
+        define('PROVE','/UNICAMPSPSP/');
+
         foreach ($records as $index => $record) {   
             $alternatives = array();
             $answer_data = array(
+                'prova'         => '',
                 'identificador' => '',
                 'enunciated'    => '',
                 'video'         => '',
@@ -36,6 +38,8 @@ class CsvGenerator
                 'alternative_e' => '',
                 'correct'       => '',                   
             );
+            
+            $answer_data['prova']         = $this->implodeProff(strip_tags($record['title']));
             $answer_data['identificador'] = strip_tags($record['title']);
             $answer_data['enunciated']    = strip_tags($record['question']);
             $answer_data['video']         = strip_tags($record['correct_msg']); 
@@ -43,12 +47,13 @@ class CsvGenerator
             $comment                      = substr($answer_data['video'], $length+1, 2000);
             $video                        = $this->extractLink(substr($answer_data['video'], 0, $length+1));
             
-            // if(preg_match($pattern_vimeo,$video)) {
+            // if(preg_match($pattern_vimeo,$video) || $video == null || $video == '') {
             //     continue;
             // }
-            if(preg_match($pattern_vdo,$video) || $video == null || $video == '') {
-                continue;
-            }
+            // if(preg_match($pattern_vdo,$video) || $video == null || $video == '') {
+            //     continue;
+            // }
+
             $answer_data['comment']       = $comment;
             $answer_data['video']         = $video;
 
@@ -84,5 +89,34 @@ class CsvGenerator
         '" width="640" height="360" responsive="yes" autoplay="no" mute="no" dnt="no" title="" texttrack="" class=""]'],
         '',$video);
         return $video_extract;
+    }
+
+    public function implodeProff(string $identifier):string
+    {
+        $groupProof  = array();
+
+        $stringCorrentArray = str_split($identifier);
+        $indexStartYear = array_search('2',$stringCorrentArray);
+
+        $year = $stringCorrentArray[$indexStartYear].$stringCorrentArray[$indexStartYear+1].$stringCorrentArray[$indexStartYear+2].$stringCorrentArray[$indexStartYear+3];
+        $state = $stringCorrentArray[$indexStartYear-2].$stringCorrentArray[$indexStartYear-1];
+
+        array_pop($stringCorrentArray);
+        array_pop($stringCorrentArray);
+        if(array_search('Q',$stringCorrentArray)!==false){
+            array_pop($stringCorrentArray);
+        }
+
+        $stringCorrentArray = explode($state.$year,implode('',$stringCorrentArray));
+
+        
+        $evaluation = $stringCorrentArray[0];
+        $type = $stringCorrentArray[1];
+
+        array_push($groupProof,$evaluation,$state,$year,$type);
+
+        $proff = implode(' ',$groupProof);
+
+        return $proff;
     }
 }
