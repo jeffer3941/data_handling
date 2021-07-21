@@ -75,6 +75,57 @@ class CsvGenerator
         }
         return $questions_data;            
     }  
+
+    public function processCvsDataAffeterSeralized():array 
+    {
+    
+        $stream = fopen('assets/csv/questõesWPcomVimeoFilter.csv', 'r');
+        $csv = Reader::createFromStream($stream);
+
+        $csv->setDelimiter(';');
+        $csv->setHeaderOffset(0);
+
+        $stmt = Statement::create();
+        $records = $stmt->process($csv);
+
+
+        $questions_data = array();
+        $pattern_vimeo = '/vimeo/';
+        $pattern_vdo   = '/vdo id/';
+        $characters = "\n\r\t\v\0";
+        foreach ($records as $index => $record) {   
+            $alternatives = array();
+            $answer_data = array(
+                'prova'         => '',
+                'order'         => '',
+                'identificador' => '',
+                'enunciated'    => '',
+                'video'         => '',
+                'comment'       => '',
+                'alternative_a' => '',
+                'alternative_b' => '',
+                'alternative_c' => '',
+                'alternative_d' => '',
+                'alternative_e' => '',
+                'correct'       => '',                   
+            );
+            // $answer_data['prova']         =  @$this->implodeProff($record['identificador']);
+            $answer_data['order']         =  @$this->extractOrder($record['identificador']);
+            // $answer_data['identificador'] = trim($record['identificador'],$characters);
+            // $answer_data['enunciated']    = ltrim($record['enunciated'],$characters);
+            // $answer_data['video']         = trim($record['link_do_video'],$characters); 
+            // $answer_data['comment']       = trim($record['comment'],$characters);
+            // $answer_data['alternative_a'] = trim($record['alternativa_a'],$characters);
+            // $answer_data['alternative_b'] = trim($record['alternativa_b'],$characters);
+            // $answer_data['alternative_c'] = trim($record['alternativa_c'],$characters);
+            // $answer_data['alternative_d'] = trim($record['alternativa_d'],$characters);
+            // $answer_data['alternative_e'] = trim($record['alternativa_e'],$characters);
+            // $answer_data['correct'] = trim($record['correct'],$characters);    
+                    
+            array_push($questions_data,$answer_data);      
+        }
+        return $questions_data;         
+    }
     public function fixedDataSeralized(string $data):string
     {
         $fixed_data = preg_replace_callback ( '!s:(\d+):"(.*?)";!', function($match) {      
@@ -108,15 +159,20 @@ class CsvGenerator
         }
 
         $stringCorrentArray = explode($state.$year,implode('',$stringCorrentArray));
-
         
         $evaluation = $stringCorrentArray[0];
         $type = $stringCorrentArray[1];
 
         array_push($groupProof,$evaluation,$state,$year,$type);
-
         $proff = implode(' ',$groupProof);
 
         return $proff;
+    }
+
+    public function extractOrder(string $identifier):string
+    {
+        $length = strpos($identifier, 'Q');
+        $order = substr($identifier, $length+1, 2000);
+        return $order;
     }
 }
